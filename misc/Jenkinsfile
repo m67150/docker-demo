@@ -1,25 +1,19 @@
 node {
-   def app
    def commit_id
    stage('Preparation') {
      checkout scm
      sh "git rev-parse --short HEAD > .git/commit-id"                        
      commit_id = readFile('.git/commit-id').trim()
    }
-   stage('docker Build') {
-        /* This builds the actual image; synonymous to docker build on the command line */
-      app = docker.build("mrernst/docker-nodejs-demo:${env.BUILD_ID}")
-    }
    stage('test') {
      nodejs(nodeJSInstallationName: 'nodejs') {
        sh 'npm install --only=dev'
        sh 'npm test'
      }
    }
-   stage('docker push') {
+   stage('docker build/push') {
      docker.withRegistry('https://index.docker.io/v1/', 'dockerhub') {
-       app.push("${env.BUILD_ID}")
-       app.push("latest")
+       def app = docker.build("mrernst/docker-nodejs-demo:${commit_id}", '.').push()
      }
    }
 }
