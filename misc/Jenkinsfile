@@ -7,10 +7,8 @@ node {
      commit_id = readFile('.git/commit-id').trim()
    }
    stage('docker Build') {
-        /* This builds the actual image; synonymous to
-         * docker build on the command line */
-
-        app = docker.build("mrernst/docker-nodejs-demo:${commit_id}")
+        /* This builds the actual image; synonymous to docker build on the command line */
+      app = docker.build("mrernst/docker-nodejs-demo:${env.BUILD_ID}")
     }
    stage('test') {
      nodejs(nodeJSInstallationName: 'nodejs') {
